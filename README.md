@@ -31,7 +31,8 @@ We "grade" based on the following criteria:
 * Readability is important to us.
 * We look at your git commit log. It would be good if it shows us your process.
 * Understanding your tactical decisions should be made clear.
-* Your Dockerfile
-* Your Helm chart if you use that
-* Any scripts you use
----
+* Your build pipeline.
+* Your Dockerfile.
+* Your Helm charts, if you use that.
+* Any other scripts you use.
+* Your sense of security and observability.
