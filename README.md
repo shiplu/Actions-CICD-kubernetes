@@ -4,7 +4,8 @@
 ## Introduction
 
 Thank you for taking time to do this home assignment! 
-In this assignment we ask you deploy the app uploaded in the ./app folder.
+
+In this assignment we ask you deploy the app uploaded in the frontend and backend folders.
 
 The application's frontend should be public and the backend should not be.
 Please demonstrate the app autoscales and displays some level of autohealing.
