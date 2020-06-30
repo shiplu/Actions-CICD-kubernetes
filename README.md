@@ -22,7 +22,7 @@ Please implement the stories below using the following tech:
 - Kubernetes 
 - Docker
 
-You can pick any provider (GCP, AWS, Azure). We prefer Azure.
+You can pick any provider (GCP, AWS, Azure).
 
 ## Assessment
 
