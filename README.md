@@ -19,7 +19,7 @@ Please implement the stories below using the following tech:
 
 - Terraform
 - Github Actions
-- Kubernetes 
+- Kubernetes (EKS, AKS, GKE are fine)
 - Docker
 
 You can pick any provider (GCP, AWS, Azure).
