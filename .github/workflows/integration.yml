@@ -71,6 +71,10 @@ jobs:
       run: docker image tag backend:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
 
     - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Login to docker registry
+      run: docker login -u _json_key -p '${{ secrets.GCP_CREDENTIAL }}' https://gcr.io
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       name: Push the image along with it's tag
       run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
 
