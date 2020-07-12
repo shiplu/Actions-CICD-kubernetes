@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  replicas: 3
+  template:
+    metadata:
+      name: backend
+      labels:
+        app: backend
+        env: dev
+        author: Shiplu
+        type: api
+    spec:
+      containers:
+        - name: backend
+          image: gcr.io/lk8s-283009/backend:200711.14.37
+          ports:
+          - containerPort: 8080
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "/usr/bin/curl", "-XPOST", "http://localhost:8080/actuator/shutdown" ]
+          readinessProbe:
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            httpGet:
+              path: /actuator/health
+              port: 8080
+          livenessProbe:
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            httpGet:
+              path: /actuator/health
+              port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: backend
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-deployment-autoscaling
+spec:
+  maxReplicas: 5
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: backend-deployment
+  targetCPUUtilizationPercentage: 80
+status:
+  currentCPUUtilizationPercentage: 2
+  currentReplicas: 3
+  desiredReplicas: 3

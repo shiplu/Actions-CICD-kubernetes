@@ -1,0 +1,114 @@
+
+name: Continuous Integration and Deployment
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # These specific versions were used during development
+  JAVA_VERSION: "11.0.7"
+  MAVEN_VERSION: "3.6.0"
+  TERRAFORM_VERSION: "0.12.28"
+
+jobs:
+  # Only run the tests
+  test:
+    defaults:
+      run:
+        working-directory: backend
+        
+    runs-on: ubuntu-18.04
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Java ${{ env.JAVA_VERSION  }}
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+
+    - name: Setup Maven Wrapper ${{ env.MAVEN_VERSION }}
+      run: mvn -N io.takari:maven:wrapper -Dmaven=$MAVEN_VERSION
+
+    - name: Run Tests
+      run: ./mvnw test
+
+    # Following steps should only be run if master branch
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Build images
+      run: ./mvnw spring-boot:build-image
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      id: spring_boot_build_image
+      name: Get docker image repository and tag
+      run: echo "::set-output name=spring_boot_image_tag::$(docker images 'demo:*.*' --format '{{.Repository}}:{{.Tag}}')"
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Tag the image to 'latest' # Then Dockerfile's FROM statement can pick it up
+      run: docker image tag ${{ steps.spring_boot_build_image.outputs.spring_boot_image_tag }} demo:latest
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Build docker to include `curl` and tag it as backend:latest
+      run: docker build --tag backend:latest .
+  
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Generate release tag
+      id: generate_release_tag
+      run: echo "::set-output name=release_tag:$(date +%y%m%d.%H.%M)"
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Assign generated tag
+      run: docker image tag backend:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Login to docker registry
+      run: docker login -u _json_key -p '${{ secrets.GCP_CREDENTIAL }}' https://gcr.io
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Push the image along with it's tag
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
+
+
+# Terraform related tests
+  infra:
+    env:
+      PROJECT_NAME: LK8s
+      PROJECT_REGION: europe-west4
+      PROJECT_ZONE: europe-west4-b
+    defaults:
+      run:
+        working-directory: infra
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    # If we can not deploy the changes we can not allow this to be in master
+    - name: Terraform Plan
+      run: terraform plan -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' -var "project_name=$PROJECT_NAME" -var "project_region=$PROJECT_REGION" -var "project_zone=$PROJECT_ZONE"
+    # Only apply if it's master
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      run: terraform apply -auto-approve
+
