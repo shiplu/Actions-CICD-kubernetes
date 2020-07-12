@@ -1,5 +1,5 @@
 
-name: CI
+name: Continuous Integration and Deployment
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -43,7 +43,39 @@ jobs:
     - name: Run Tests
       run: ./mvnw test
 
-  # Terraform related tests
+    # Following steps should only be run if master branch
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Build images
+      run: ./mvnw spring-boot:build-image
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      id: spring_boot_build_image
+      name: Get docker image repository and tag
+      run: echo "::set-output name=spring_boot_image_tag::$(docker images 'demo:*.*' --format '{{.Repository}}:{{.Tag}}')"
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Tag the image to 'latest' # Then Dockerfile's FROM statement can pick it up
+      run: docker image tag ${{ steps.spring_boot_build_image.outputs.spring_boot_image_tag }} demo:latest
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Build docker to include `curl` and tag it as backend:latest
+      run: docker build --tag backend:latest .
+  
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Generate release tag
+      id: generate_release_tag
+      run: echo "::set-output name=release_tag:$(date +%y%m%d.%H.%M)"
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Assign generated tag
+      run: docker image tag backend:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
+
+    - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      name: Push the image along with it's tag
+      run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
+
+
+# Terraform related tests
   infra:
     env:
       PROJECT_NAME: LK8s
