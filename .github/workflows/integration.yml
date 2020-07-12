@@ -32,12 +32,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup Java $JAVA_VERSION 
+    - name: Setup Java ${{ env.JAVA_VERSION  }}
       uses: actions/setup-java@v1
       with:
-        java-version: $JAVA_VERSION
+        java-version: ${{ env.JAVA_VERSION }}
 
-    - name: Setup Maven Wrapper $MAVEN_VERSION
+    - name: Setup Maven Wrapper ${{ env.MAVEN_VERSION }}
       run: mvn -N io.takari:maven:wrapper -Dmaven=$MAVEN_VERSION
 
     - name: Run Tests
@@ -60,7 +60,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: $TERRAFORM_VERSION
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
         terraform_wrapper: false
 
     - name: Terraform Init
