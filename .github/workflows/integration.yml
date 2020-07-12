@@ -13,6 +13,11 @@ defaults:
   run:
     shell: bash
 
+env:
+  # These specific versions were used during development
+  JAVA_VERSION: "11.0.7"
+  MAVEN_VERSION: "3.6.0"
+  TERRAFORM_VERSION: "v0.12.28"
 
 jobs:
   # Only run the tests
@@ -27,11 +32,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - uses: actions/setup-java@v1
+    - name: Setup Java $JAVA_VERSION 
+      uses: actions/setup-java@v1
       with:
-        java-version: '11.0.7' # This specific version was used for testing
-  
-    - name: Run TEST
+        java-version: $JAVA_VERSION
+
+    - name: Setup Maven Wrapper $MAVEN_VERSION
+      run: mvn -N io.takari:maven:wrapper -Dmaven=$MAVEN_VERSION
+
+    - name: Run Tests
       run: ./mvnw test
 
   # Terraform related tests
@@ -51,7 +60,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 'v0.12.28'
+        terraform_version: $TERRAFORM_VERSION
         terraform_wrapper: false
 
     - name: Terraform Init
