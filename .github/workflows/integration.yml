@@ -17,7 +17,7 @@ env:
   # These specific versions were used during development
   JAVA_VERSION: "11.0.7"
   MAVEN_VERSION: "3.6.0"
-  TERRAFORM_VERSION: "v0.12.28"
+  TERRAFORM_VERSION: "0.12.28"
 
 jobs:
   # Only run the tests
