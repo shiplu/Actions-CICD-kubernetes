@@ -64,7 +64,7 @@ jobs:
     - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       name: Generate release tag
       id: generate_release_tag
-      run: echo "::set-output name=release_tag:$(date +%y%m%d.%H.%M)"
+      run: echo "::set-output name=release_tag::$(date +%y%m%d.%H.%M)"
 
     - if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       name: Assign generated tag
