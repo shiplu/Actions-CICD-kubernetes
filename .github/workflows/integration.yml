@@ -70,7 +70,7 @@ jobs:
 
     # If we can not deploy the changes we can not allow this to be in master
     - name: Terraform Plan
-      run: terraform plan -var "google_credentials=${{ secrets.GCP_CREDENTIAL }}" -var "project_name=$PROJECT_NAME" -var "project_region=$PROJECT_REGION" -var "project_zone=$PROJECT_ZONE"
+      run: terraform plan -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' -var "project_name=$PROJECT_NAME" -var "project_region=$PROJECT_REGION" -var "project_zone=$PROJECT_ZONE"
     # Only apply if it's master
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
