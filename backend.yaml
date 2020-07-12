@@ -59,7 +59,7 @@ metadata:
   name: backend-deployment-autoscaling
 spec:
   maxReplicas: 5
-  minReplicas: 1
+  minReplicas: 2
   scaleTargetRef:
     apiVersion: extensions/v1beta1
     kind: Deployment
