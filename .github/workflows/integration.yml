@@ -31,6 +31,8 @@ jobs:
         working-directory: backend
         
     runs-on: ubuntu-18.04
+    outputs:
+      release_tag: ${{ steps.generate_release_tag.outputs.release_tag }}
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Checkout repository
@@ -146,4 +148,4 @@ jobs:
     - name: Deploy backend after updating the with latest image tag
       run: envsubst '$K8_BACKEND_IMAGE' < backend.yaml | kubectl apply -f -
       env:
-        K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
+        K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ needs.build.output.release_tag }}
