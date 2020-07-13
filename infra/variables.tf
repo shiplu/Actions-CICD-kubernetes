@@ -1,6 +1,6 @@
-variable "project_name" {
+variable "project_id" {
   type        = string
-  description = "Name of the project"
+  description = "ID of the project"
 }
 variable "google_credentials" {
   type        = string

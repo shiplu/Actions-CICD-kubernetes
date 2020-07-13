@@ -10,14 +10,14 @@ resource "google_container_cluster" "mycluster" {
     }
   }
 
-  node_config {
-    metadata = {
-      # This is deprecated and recommended by google
-      disable-legacy-endpoints = "true"
-    }
-  }
   node_pool {
     # Just add minimum amount of nodes to achieve HA otherwise it becomes expensive
     initial_node_count = 2
+    node_config {
+      metadata = {
+        # This is deprecated and recommended by google
+        disable-legacy-endpoints = "true"
+      }
+    }
   }
 }
