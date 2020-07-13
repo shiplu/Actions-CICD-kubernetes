@@ -145,7 +145,7 @@ jobs:
     - name: Setup kubectl
       run: gcloud container clusters get-credentials my-cluster --region "$PROJECT_REGION"
 
-    - name: Deploy backend after updating the with latest image tag
+    - name: Deploy backend after updating the with image tag ${{ needs.build.outputs.release_tag }}
       run: envsubst '$K8_BACKEND_IMAGE' < backend.yaml | kubectl apply -f -
       env:
         K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ needs.build.outputs.release_tag }}
