@@ -24,8 +24,9 @@ env:
   PROJECT_ZONE: europe-west4-b
 
 jobs:
-  # Only run the tests
-  test:
+  # Run test and then start building image
+  # At the end upload the image
+  build:
     defaults:
       run:
         working-directory: backend
@@ -124,9 +125,10 @@ jobs:
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: terraform apply -input=false plan.tfplan
 
-  deployment:
+  deploy:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-18.04
+    needs: [build, infra]
     steps:
     - name: Setup gcloud
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@${{ env.SETUP_GCLOUD_ACTION_VERSION }}
