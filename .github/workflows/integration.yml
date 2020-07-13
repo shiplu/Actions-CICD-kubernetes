@@ -18,6 +18,10 @@ env:
   JAVA_VERSION: "11.0.7"
   MAVEN_VERSION: "3.6.0"
   TERRAFORM_VERSION: "0.12.28"
+  GCLOUD_VERSION: "300.0.0"
+  SETUP_GCLOUD_ACTION_VERSION: 2a8579d7d085bfa2b5589c72e5d158e8b7fe4404
+  PROJECT_REGION: europe-west4
+  PROJECT_ZONE: europe-west4-b
 
 jobs:
   # Only run the tests
@@ -82,9 +86,6 @@ jobs:
 # Terraform related tests
   infra:
     env:
-      PROJECT_NAME: LK8s
-      PROJECT_REGION: europe-west4
-      PROJECT_ZONE: europe-west4-b
       TF_BACKEND_BUCKET: learn-k8s
       TF_BACKEND_PREFIX: terraform-state
     defaults:
@@ -123,3 +124,21 @@ jobs:
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: terraform apply -input=false plan.tfplan
 
+  deployment:
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Setup gcloud
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@${{ env.SETUP_GCLOUD_ACTION_VERSION }}
+      with:
+        version: ${{ env.GCLOUD_VERSION }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: "${{ secrets.GCP_CREDENTIAL_BASE64 }}"
+
+    - name: Setup kubectl
+      run: gcloud container clusters get-credentials my-cluster --region "$PROJECT_REGION"
+
+    - name: Deploy backend after updating the with latest image tag
+      run: envsubst '$K8_BACKEND_IMAGE' < backend.yaml | kubectl apply -f -
+      env:
+        K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ steps.generate_release_tag.outputs.release_tag }}
