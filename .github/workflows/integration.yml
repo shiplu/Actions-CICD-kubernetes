@@ -115,7 +115,7 @@ jobs:
       run: |
         terraform plan -out=plan.tfplan -input=false \
         -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' \
-        -var "project_name=$PROJECT_NAME" \
+        -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
         -var "project_region=$PROJECT_REGION" \
         -var "project_zone=$PROJECT_ZONE"
     # Only apply if it's master
