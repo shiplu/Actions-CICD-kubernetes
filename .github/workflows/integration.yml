@@ -85,6 +85,8 @@ jobs:
       PROJECT_NAME: LK8s
       PROJECT_REGION: europe-west4
       PROJECT_ZONE: europe-west4-b
+      TF_BACKEND_BUCKET: learn-k8s
+      TF_BACKEND_PREFIX: terraform-state
     defaults:
       run:
         working-directory: infra
@@ -101,8 +103,8 @@ jobs:
     - name: Terraform Init
       run: | 
         terraform init -input=false \
-        -backend-config='bucket=${{ secrets.GCP_TF_BACKEND_BUCKET }}' \
-        -backend-config='prefix=${{ secrets.GCP_TF_BACKEND_PREFIX }}' \
+        -backend-config="bucket=$TF_BACKEND_BUCKET" \
+        -backend-config="prefix=$TF_BACKEND_PREFIX" \
         -backend-config='credentials=${{ secrets.GCP_CREDENTIAL }}'
 
     - name: Terraform Format
