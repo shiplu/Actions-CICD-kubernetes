@@ -100,7 +100,7 @@ jobs:
 
     - name: Terraform Init
       run: | 
-      terraform init -input=false \
+        terraform init -input=false \
         -backend-config='bucket=${{ secrets.GCP_TF_BACKEND_BUCKET }}' \
         -backend-config='prefix=${{ secrets.GCP_TF_BACKEND_PREFIX }}' \
         -backend-config='credentials=${{ secrets.GCP_CREDENTIAL }}'
@@ -111,7 +111,7 @@ jobs:
     # If we can not deploy the changes we can not allow this to be in master
     - name: Terraform Plan
       run: |
-      terraform plan -out=plan.tfplan -input=false \
+        terraform plan -out=plan.tfplan -input=false \
         -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' \
         -var "project_name=$PROJECT_NAME" \
         -var "project_region=$PROJECT_REGION" \
@@ -120,7 +120,7 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
-      terraform apply -input=false -auto-approve \
+        terraform apply -input=false -auto-approve \
         -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' \
         -var "project_name=$PROJECT_NAME" \
         -var "project_region=$PROJECT_REGION" \
