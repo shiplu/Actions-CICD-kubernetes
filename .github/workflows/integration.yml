@@ -119,11 +119,5 @@ jobs:
     # Only apply if it's master
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: |
-        terraform apply -input=false -auto-approve \
-        -var 'google_credentials=${{ secrets.GCP_CREDENTIAL }}' \
-        -var "project_name=$PROJECT_NAME" \
-        -var "project_region=$PROJECT_REGION" \
-        -var "project_zone=$PROJECT_ZONE" \
-        plan.tfplan
+      run: terraform apply -input=false plan.tfplan
 
