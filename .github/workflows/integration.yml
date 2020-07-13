@@ -148,4 +148,4 @@ jobs:
     - name: Deploy backend after updating the with latest image tag
       run: envsubst '$K8_BACKEND_IMAGE' < backend.yaml | kubectl apply -f -
       env:
-        K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ needs.build.output.release_tag }}
+        K8_BACKEND_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend:${{ needs.build.outputs.release_tag }}
