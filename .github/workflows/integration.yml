@@ -131,7 +131,7 @@ jobs:
     needs: [build, infra]
     steps:
     - name: Setup gcloud
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@${{ env.SETUP_GCLOUD_ACTION_VERSION }}
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@${{ env.SETUP_GCLOUD_ACTION_VERSION }}
       with:
         version: ${{ env.GCLOUD_VERSION }}
         project_id: ${{ secrets.GCP_PROJECT_ID }}
