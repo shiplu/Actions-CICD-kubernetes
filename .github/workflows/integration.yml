@@ -128,7 +128,11 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-18.04
     needs: [build, infra]
+
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Setup gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@2a8579d7d085bfa2b5589c72e5d158e8b7fe4404
       with:
