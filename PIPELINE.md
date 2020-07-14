@@ -26,6 +26,23 @@ This is a backend project with CI & CD. Both CI and CD workflow is done using Gi
 ## Scripts
 There are some scripts used for build and deploy locally. Those are `build.sh`, `apply.sh`, and `deploy.sh`. These scripts uses `envvar.sh` to load some variable. Make sure you populate it before using any of deploy, build or apply scripts.
 
+## Setup and Run
+To configure it locally following steps to be compluted
+
+1. Make sure `gcloud` and `kubectl` is available and configured. Also `kubectl` should be configured to use `gcloud`'s credential
+1. Terraform backend should be configured (see `infra/terraform-backend.tf`).
+  - Take a look at the `Terraform Init` and `Terraform Plan` steps in the job `infra` in github action workflow file `integration.yml`
+  - It's also possible to configure it run in a different `workspace`
+1. For first time deployment 
+  1. `build.sh` should be run. It'll build the application image and push it to container registry.
+  1. Get the image URI from the log. It'll be something like `gcr.io/.../backend:DDDDDD.DD.DD` where `D` is digit.
+  1.  run `apply.sh` with that tag as first argument. It'll the tag and any changes in the kubernetes files to the cluster
+1. For successive deployment of the application after source code is changed,
+  1. Run `build.sh` to build
+  1. Run `deploy.sh` to update only the backend image
+1. To apply changes in the cluster `apply.sh` should be run with the image tag.
+   
+
 ## Security Concerns
 1. Google cloud credentials are saved as github secret. These are credential for a service account which is separated than local user (my own service account)
 1. Project id, backend bucket is also a secret so no one can guess where we are storing the terraform backend (as it's a public repo)
