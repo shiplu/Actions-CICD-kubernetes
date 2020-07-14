@@ -113,7 +113,6 @@ jobs:
     - name: Terraform Format
       run: terraform fmt -check
 
-    # If we can not deploy the changes we can not allow this to be in master
     - name: Terraform Plan
       run: |
         terraform plan -out=plan.tfplan -input=false \
