@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Deploy the application to kubernetes cluster by setting the image tag
 
 set -e
 . envvar.sh

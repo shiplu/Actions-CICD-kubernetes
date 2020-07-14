@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script builds docker image and push it to GCR
+
 function timed {
     START=$SECONDS
 
